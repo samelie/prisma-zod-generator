@@ -152,7 +152,7 @@ export default class Transformer {
 
         return value.trim();
       });
-    
+
     return zodObjectSchemaFields;
   }
 
@@ -236,7 +236,7 @@ export default class Transformer {
     // We check if alternatives start with the field name pattern (spaces + fieldname + colon)
     const fieldNamePattern = `  ${field.name}:`;
     const allAlternativesHaveFieldName = alternatives.every((alt) => alt.startsWith(fieldNamePattern));
-    
+
     const fieldName = allAlternativesHaveFieldName
       ? ''
       : fieldNamePattern;
@@ -290,9 +290,9 @@ export default class Transformer {
 
     const objectSchemaLine = isModelQueryType
       ? this.resolveModelQuerySchemaName(
-          modelName as string,
-          queryName as string,
-        )
+        modelName as string,
+        queryName as string,
+      )
       : `${inputType.type}ObjectSchema`;
     const enumSchemaLine = `${inputType.type}Schema`;
 
@@ -315,8 +315,8 @@ export default class Transformer {
 
     if (needsLazyLoading) {
       return inputsLength === 1
-        ? `  ${field.name}: z.lazy((): z.ZodTypeAny => ${schema})${arr}${opt}`
-        : `z.lazy((): z.ZodTypeAny => ${schema})${arr}${opt}`;
+        ? `  ${field.name}: z.lazy(() => ${schema})${arr}${opt}`
+        : `z.lazy(() => ${schema})${arr}${opt}`;
     } else {
       return inputsLength === 1
         ? `  ${field.name}: ${schema}${arr}${opt}`
@@ -400,16 +400,16 @@ export default class Transformer {
   private getImportFileExtension(): string {
     // Check if we're using the new prisma-client generator with ESM configuration
     const isNewPrismaClientGenerator = Transformer.prismaClientProvider === 'prisma-client' ||
-                                       Transformer.prismaClientConfig.moduleFormat !== undefined ||
-                                       Transformer.prismaClientConfig.runtime !== undefined;
-    
+      Transformer.prismaClientConfig.moduleFormat !== undefined ||
+      Transformer.prismaClientConfig.runtime !== undefined;
+
     // If using ESM with importFileExtension specified, use that extension
-    if (isNewPrismaClientGenerator && 
-        Transformer.prismaClientConfig.moduleFormat === 'esm' &&
-        Transformer.prismaClientConfig.importFileExtension) {
+    if (isNewPrismaClientGenerator &&
+      Transformer.prismaClientConfig.moduleFormat === 'esm' &&
+      Transformer.prismaClientConfig.importFileExtension) {
       return `.${Transformer.prismaClientConfig.importFileExtension}`;
     }
-    
+
     // Default to no extension for backward compatibility
     return '';
   }
@@ -425,7 +425,7 @@ export default class Transformer {
   generateSchemaImports() {
     // Get the file extension to use for imports (for ESM support)
     const importExtension = this.getImportFileExtension();
-    
+
     return [...this.schemaImports]
       .map((name) => {
         const { isModelQueryType, modelName, queryName } =
@@ -611,11 +611,10 @@ export default class Transformer {
             imports,
           )}${this.generateExportSchemaStatement(
             `${modelName}CreateMany`,
-            `z.object({ data: z.union([ ${modelName}CreateManyInputObjectSchema, z.array(${modelName}CreateManyInputObjectSchema) ]), ${
-              Transformer.provider === 'postgresql' ||
+            `z.object({ data: z.union([ ${modelName}CreateManyInputObjectSchema, z.array(${modelName}CreateManyInputObjectSchema) ]), ${Transformer.provider === 'postgresql' ||
               Transformer.provider === 'cockroachdb'
-                ? 'skipDuplicates: z.boolean().optional()'
-                : ''
+              ? 'skipDuplicates: z.boolean().optional()'
+              : ''
             } })`,
           )}`,
         );
@@ -820,13 +819,13 @@ export default class Transformer {
     if (Transformer.isGenerateSelect) {
       const zodSelectObjectSchema = `${modelName}SelectObjectSchema.optional()`;
       selectZodSchemaLine = `select: ${zodSelectObjectSchema},`;
-      selectZodSchemaLineLazy = `select: z.lazy((): z.ZodTypeAny => ${zodSelectObjectSchema}),`;
+      selectZodSchemaLineLazy = `select: z.lazy(() => ${zodSelectObjectSchema}),`;
     }
 
     if (Transformer.isGenerateInclude && hasRelationToAnotherModel) {
       const zodIncludeObjectSchema = `${modelName}IncludeObjectSchema.optional()`;
       includeZodSchemaLine = `include: ${zodIncludeObjectSchema},`;
-      includeZodSchemaLineLazy = `include: z.lazy((): z.ZodTypeAny => ${zodIncludeObjectSchema}),`;
+      includeZodSchemaLineLazy = `include: z.lazy(() => ${zodIncludeObjectSchema}),`;
     }
 
     return {

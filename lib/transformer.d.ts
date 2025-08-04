@@ -51,9 +51,12 @@ export default class Transformer {
     generateFieldValidators(zodStringWithMainType: string, field: PrismaDMMF.SchemaArg): string;
     prepareObjectSchema(zodObjectSchemaFields: string[]): string;
     generateExportObjectSchemaStatement(schema: string): string;
+    private isPrismaTypeAvailable;
+    private hasComplexRelations;
     addFinalWrappers({ zodStringFields }: {
         zodStringFields: string[];
     }): string;
+    generateImportPrismaStatement(): string;
     generateJsonSchemaImplementation(): string;
     generateObjectSchemaImportStatements(): string;
     /**
@@ -76,6 +79,7 @@ export default class Transformer {
         queryName?: undefined;
     };
     resolveModelQuerySchemaName(modelName: string, queryName: string): string;
+    wrapWithZodUnion(zodStringFields: string[]): string;
     wrapWithZodObject(zodStringFields: string | string[]): string;
     resolveObjectSchemaName(): string;
     generateModelSchemas(): Promise<void>;
